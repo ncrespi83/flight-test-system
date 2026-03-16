@@ -1,6 +1,8 @@
 # Flight Test System App
 
-Django backend for managing flight test requirements, test plans, test points, and test events.
+Flight plan app that utilizes Django ORM & Python on the backend, and JavaScript (Vue 3) on the frontend
+
+
 
 ## Tech Stack
 
