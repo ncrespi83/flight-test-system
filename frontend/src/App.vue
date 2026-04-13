@@ -1,30 +1,42 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
+import {onMounted, ref} from "vue";
+import {api} from "./api";
+
+const plans = ref([]);      //stores the API response for test plans
+const loading = ref(false); //displays UI feedback while the request is in progress
+const error = ref("")       //shows a message if API call fails
+
+async function loadPlans() {
+  loading.value = true;
+  error.value = "";
+
+  try{
+    const response = await api.get("/testplans/");
+    plans.value = response.data;
+  } catch(err){
+    error.value = err?.message || "Failed to load test plans.";
+  } finally {
+    loading.value = false;
+  }
+}
+
+onMounted(loadPlans);   //runs once component appears in the browser
 </script>
 
 <template>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
-  </div>
-  <HelloWorld msg="Vite + Vue" />
-</template>
+  <main style = "max-width: 900px; margin: 40px; padding: 0 16px; font-family: system-ui;">
+    <h1>Flight Test Plans</h1>
+    
+    <p v-if="loading">Loading test plans...</p>
+    <p v-else-if="error" style="color: crimson;">{{error}}</p>
 
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
-</style>
+    <ul v-else style="padding-left: 20px;">
+      <li v-for="plan in plans" :key = "plan.id" style="margin-bottom: 12px;">
+        <strong>{{plan.name}}</strong>
+        <span style="margin-left: 8px;">
+          - {{plan.status_display}} ({{plan.status}})
+        </span>
+      </li>
+    </ul>
+  </main>  
+</template>
